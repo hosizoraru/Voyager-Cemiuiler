@@ -132,6 +132,9 @@ jobs:
           COMMIT_MESSAGE: |+
             New Release From Github
             ```
+            ${{ env.COMMIT_ALL_MESSAGES }}
+            ```
+            ```
             ${{ github.event.head_commit.message }}
             ```
         run: |
