@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apk_version: [ Release, Beta, Canary, Debug ]
+        apk_version: [ Canary, Debug ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -115,6 +115,8 @@ jobs:
             echo 'At least one file has a file name that starts with "Unsigned", skip post to channel.'
             echo "unsigned_check=failure" >> ${GITHUB_ENV}
           fi
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Get all commit messages
         id: get_commit_messages
         run: |
@@ -139,6 +141,7 @@ jobs:
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
           curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?chat_id=${CHANNEL_ID}&caption=${ESCAPED}&parse_mode=MarkdownV2" -F document="@${CANARY}"
 
+#apk_version: [ Release, Beta, Canary, Debug ]
 #          DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
 #          RELEASE: "${{ github.workspace }}/artifact/Cemiuiler-Release/Cemiuiler-Release.apk"
 #          BETA: "${{ github.workspace }}/artifact/Cemiuiler-Beta/Cemiuiler-Beta.apk"
