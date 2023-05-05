@@ -31,6 +31,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Get all commit messages
+        id: get_commit_messages
+        run: |
+          git fetch --unshallow
+          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
+          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Install tools
         run: |
           sudo apt-get update
@@ -92,18 +101,6 @@ jobs:
       CHANNEL_ID: "${{ secrets.CHANNEL_ID }}"
       BOT_TOKEN: "${{ secrets.BOT_TOKEN }}"
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Get all commit messages
-        id: get_commit_messages
-        run: |
-          git fetch --unshallow
-          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
-          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
-          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Check variables
         shell: bash
         run: |
@@ -154,7 +151,7 @@ jobs:
             ```
         run: |
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
-          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Frelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fbeta%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fcanary%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fdebug%22%2C%22parse_mode%22%3A%22MarkdownV2%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F release="@${RELEASE}" -F beta="@${BETA}" -F canary="@${CANARY}" -F debug="@${DEBUG}"
+          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fcanary%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fdebug%22%2C%22parse_mode%22%3A%22MarkdownV2%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F canary="@${CANARY}" -F debug="@${DEBUG}"
 
 #apk_version: [ Release, Beta, Canary, Debug ]
 #          RELEASE: "${{ github.workspace }}/artifact/Cemiuiler-Release/Cemiuiler-Release.apk"
