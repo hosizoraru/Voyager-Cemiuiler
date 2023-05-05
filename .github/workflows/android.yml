@@ -54,7 +54,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
           BOT_MESSAGE: |+
-            New Release From Github
+            [New Release From Github](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})
         run: |
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["BOT_MESSAGE"])))'`
