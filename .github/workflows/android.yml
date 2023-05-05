@@ -44,7 +44,7 @@ jobs:
           path: ${{ steps.sign_canary.outputs.signedReleaseFile }}
 
       - name: Post to group
-        if: contains(github.event.head_commit.message, '[skip post]') == false
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_type != 'tag' && contains(github.event.head_commit.message, '[skip post]') == false && contains(github.event.head_commit.message, 's#') == false }}
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           GROUP_ID: ${{ secrets.CANARY_GROUP_ID }}
