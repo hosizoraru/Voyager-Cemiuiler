@@ -120,7 +120,8 @@ jobs:
       - name: Get all commit messages
         id: get_commit_messages
         run: |
-          COMMIT_ALL_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
+          git fetch --unshallow
+          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
           echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
           echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
