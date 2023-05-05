@@ -146,7 +146,11 @@ jobs:
           CANARY: "${{ github.workspace }}/artifact/Cemiuiler-Canary/Cemiuiler-Canary.apk"
           DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
           COMMIT_MESSAGE: |+
-            Github CI
+            New Release From Github
+            ```
+            ${{ join('\n', env.COMMIT_ALL_MESSAGES) }}
+            ```
+            **qwq**
             ```
             ${{ github.event.head_commit.message }}
             ```
