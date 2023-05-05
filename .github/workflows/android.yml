@@ -142,6 +142,7 @@ jobs:
         if: ${{ env.post_to_channel_check == 'success' }}
         run: |
           COMMIT_MESSAGES=$(cat ${{ github.workspace }}/artifact/commit_messages.txt)
+          COMMIT_MESSAGES=${COMMIT_MESSAGES//$'\n'/ }
           echo "COMMIT_ALL_MESSAGES=$COMMIT_MESSAGES" >> $GITHUB_ENV
 
       - name: Check files name
