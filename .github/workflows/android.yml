@@ -89,10 +89,6 @@ jobs:
           mkdir -vp ${{ github.workspace }}/apk-files
           cp -v ${{ github.workspace }}/signed-apk/Cemiuiler-Canary.apk ${{ github.workspace }}/apk-files/
           cp -v ${{ github.workspace }}/signed-apk/Cemiuiler-Debug.apk ${{ github.workspace }}/apk-files/
-        uses: actions/upload-artifact@v3
-        with:
-          name: apk-files
-          path: ${{ github.workspace }}/apk-files
 
   post_to_channel:
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_type != 'tag' && contains(github.event.head_commit.message, '[skip post]') == false }}
