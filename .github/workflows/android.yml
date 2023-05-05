@@ -153,7 +153,7 @@ jobs:
             ```
         run: |
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
-          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?chat_id=${CHANNEL_ID}&caption=${ESCAPED}&parse_mode=MarkdownV2" -F document="@${CANARY}"
+          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?chat_id=${CHANNEL_ID}&caption=${ESCAPED}&parse_mode=MarkdownV2" -F "document=@${CANARY}"
 
 #apk_version: [ Release, Beta, Canary, Debug ]
 #          DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
