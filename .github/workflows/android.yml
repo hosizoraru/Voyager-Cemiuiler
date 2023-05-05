@@ -48,7 +48,7 @@ jobs:
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           GROUP_ID: ${{ secrets.GROUP_ID }}
-          MESSAGE_THREAD_ID: ${{ secrets.MESSAGE_THREAD_ID }}
+          MESSAGE_THREAD_ID: ${{ secrets.CANARY_GROUP_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CANARY: ${{ steps.sign_canary.outputs.signedReleaseFile }}
           COMMIT_MESSAGE: |+
