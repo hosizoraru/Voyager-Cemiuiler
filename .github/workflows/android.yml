@@ -118,12 +118,12 @@ jobs:
       - name: Post to channel
         if: ${{ env.post_to_channel_check == 'success' && env.unsigned_check == 'success' }}
         env:
-          RELEASE: "${{ github.workspace }}/artifact/Cemiuiler-Release/Cemiuiler-Release.apk"
-          BETA: "${{ github.workspace }}/artifact/Cemiuiler-Beta/Cemiuiler-Beta.apk"
+#          RELEASE: "${{ github.workspace }}/artifact/Cemiuiler-Release/Cemiuiler-Release.apk"
+#          BETA: "${{ github.workspace }}/artifact/Cemiuiler-Beta/Cemiuiler-Beta.apk"
           CANARY: "${{ github.workspace }}/artifact/Cemiuiler-Canary/Cemiuiler-Canary.apk"
-          DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
+#          DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
           COMMIT_MESSAGE: |+
-            Github CI
+            New Release From Github
             ```
             ${{ github.event.head_commit.message }}
             ```
