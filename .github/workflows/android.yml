@@ -30,10 +30,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Install tools
         run: |
           sudo apt-get update
           sudo apt-get install -y zipalign apksigner
+
       - name: Setup JDK19
         uses: actions/setup-java@v3
         with:
@@ -41,12 +43,14 @@ jobs:
           java-package: "jdk"
           distribution: "temurin"
           cache: "gradle"
+
       - name: Build with Gradle and align APK
         run: |
           ${{ github.workspace }}/gradlew assemble${{ matrix.apk_version }}
           mkdir -vp ${{ github.workspace }}/unsigned-apk
           zipalign -v -p 4 "$(find ${{ github.workspace }}/app/build/outputs/apk -name '*.apk')" ${{ github.workspace }}/unsigned-apk/Unsigned-Cemiuiler-${{ matrix.apk_version }}.apk
           echo "gradle_build_success=true" >> ${GITHUB_ENV}
+
       - name: Check key variables
         shell: bash
         run: |
@@ -57,18 +61,21 @@ jobs:
             echo "At least one variable does not exist, skip sign apk."
             echo "key_variables_check=failure" >> ${GITHUB_ENV}
           fi
+
       - name: Sign ${{ matrix.apk_version }} APK
         if: ${{ env.key_variables_check == 'success' }}
         run: |
           mkdir -vp ${{ github.workspace }}/{key,signed-apk}
           echo "${SIGNING_KEY}" | base64 -d > ${{ github.workspace }}/key/key.jks
           apksigner sign -verbose --ks ${{ github.workspace }}/key/key.jks --ks-key-alias ${ALIAS} --ks-pass pass:${KEY_STORE_PASSWORD} --key-pass pass:${KEY_PASSWORD} --out ${{ github.workspace }}/signed-apk/Cemiuiler-${{ matrix.apk_version }}.apk ${{ github.workspace }}/unsigned-apk/Unsigned-Cemiuiler-${{ matrix.apk_version }}.apk
+
       - name: Upload unsigned ${{ matrix.apk_version }} APK
         if: ${{ (env.key_variables_check == 'failure' || failure()) && env.gradle_build_success == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: Unsigned-Cemiuiler-${{ matrix.apk_version }}
           path: ${{ github.workspace }}/unsigned-apk/Unsigned-Cemiuiler-${{ matrix.apk_version }}.apk
+
       - name: Upload signed ${{ matrix.apk_version }} APK
         if: ${{ env.key_variables_check == 'success' && success() }}
         uses: actions/upload-artifact@v3
@@ -95,14 +102,17 @@ jobs:
             echo "At least one variable does not exist, skip post to channel."
             echo "post_to_channel_check=failure" >> ${GITHUB_ENV}
           fi
+
       - name: Create directory
         if: ${{ env.post_to_channel_check == 'success' }}
         run: mkdir -vp ${{ github.workspace }}/artifact
+
       - name: Restore files
         if: ${{ env.post_to_channel_check == 'success' }}
         uses: actions/download-artifact@v3
         with:
           path: ${{ github.workspace }}/artifact
+
       - name: Check files name
         if: ${{ env.post_to_channel_check == 'success' }}
         shell: bash
@@ -115,8 +125,10 @@ jobs:
             echo 'At least one file has a file name that starts with "Unsigned", skip post to channel.'
             echo "unsigned_check=failure" >> ${GITHUB_ENV}
           fi
+
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Get all commit messages
         id: get_commit_messages
         run: |
@@ -125,6 +137,7 @@ jobs:
           echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
           echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
       - name: Post to channel
         if: ${{ env.post_to_channel_check == 'success' && env.unsigned_check == 'success' }}
         env:
