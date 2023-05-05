@@ -145,7 +145,7 @@ jobs:
           COMMIT_MESSAGE: |+
             New Release From Github
             ```
-            ${{ env.COMMIT_ALL_MESSAGES }}
+            ${{ join('\n', env.COMMIT_ALL_MESSAGES) }}
             ```
             **qwq**
             ```
