@@ -31,15 +31,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get all commit messages
-        id: get_commit_messages
-        run: |
-          git fetch --unshallow
-          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
-          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
-          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Install tools
         run: |
           sudo apt-get update
@@ -92,6 +83,17 @@ jobs:
           name: Cemiuiler-${{ matrix.apk_version }}
           path: ${{ github.workspace }}/signed-apk/Cemiuiler-${{ matrix.apk_version }}.apk
 
+      - name: Archive APK files
+        if: ${{ success() }}
+        run: |
+          mkdir -vp ${{ github.workspace }}/apk-files
+          cp -v ${{ github.workspace }}/signed-apk/Cemiuiler-Canary.apk ${{ github.workspace }}/apk-files/
+          cp -v ${{ github.workspace }}/signed-apk/Cemiuiler-Debug.apk ${{ github.workspace }}/apk-files/
+        uses: actions/upload-artifact@v3
+        with:
+          name: apk-files
+          path: ${{ github.workspace }}/apk-files
+
   post_to_channel:
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_type != 'tag' && contains(github.event.head_commit.message, '[skip post]') == false }}
     needs: [ build ]
@@ -101,6 +103,18 @@ jobs:
       CHANNEL_ID: "${{ secrets.CHANNEL_ID }}"
       BOT_TOKEN: "${{ secrets.BOT_TOKEN }}"
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get all commit messages
+        id: get_commit_messages
+        run: |
+          git fetch --unshallow
+          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
+          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Check variables
         shell: bash
         run: |
