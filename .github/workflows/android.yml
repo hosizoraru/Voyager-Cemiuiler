@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
+          submodules: true
       - uses: actions/setup-java@v3
         with:
           java-version: "19"
@@ -25,10 +25,6 @@ jobs:
       - name: Build with Gradle Canary
         run: |
           bash ./gradlew assembleCanary
-
-      - name: Build with Gradle Debug
-        run: |
-          bash ./gradlew assembleDebug
 
       - name: Sign Canary APK
         if: success()
@@ -41,28 +37,11 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_STORE_PASSWORD }}
 
-      - name: Sign Debug APK
-        if: success()
-        id: sign_debug
-        uses: r0adkll/sign-android-release@v1.0.4
-        with:
-          releaseDirectory: ./app/build/outputs/apk/debug
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_STORE_PASSWORD }}
-
       - name: Upload Canary APK
         uses: actions/upload-artifact@v3
         with:
           name: Cemiuiler canary
           path: ${{ steps.sign_canary.outputs.signedReleaseFile }}
-
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: Cemiuiler debug
-          path: ${{ steps.sign_debug.outputs.signedReleaseFile }}
 
       - name: Post to channel
         if: contains(github.event.head_commit.message, '[skip post]') == false
@@ -70,16 +49,11 @@ jobs:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CANARY: ${{ steps.sign_canary.outputs.signedReleaseFile }}
-          DEBUG: ${{ steps.sign_debug.outputs.signedReleaseFile }}
           COMMIT_MESSAGE: |+
             New Release From Github
             ```
             ${{ github.event.head_commit.message }}
             ```
         run: |
-          echo "" > $COMMIT_MESSAGE
-          for commit in ${{ github.event.commits }}; do
-            echo "$commit.message" >> $COMMIT_MESSAGE
-          done
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
-          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fcanary%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fdebug%22%2C%22parse_mode%22%3A%22MarkdownV2%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F canary="@${CANARY}" -F debug="@${DEBUG}"
+          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fcanary%22%7D%5D" -F canary="@${CANARY}"
