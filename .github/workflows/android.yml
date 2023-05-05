@@ -92,6 +92,18 @@ jobs:
       CHANNEL_ID: "${{ secrets.CHANNEL_ID }}"
       BOT_TOKEN: "${{ secrets.BOT_TOKEN }}"
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get all commit messages
+        id: get_commit_messages
+        run: |
+          git fetch --unshallow
+          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
+          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Check variables
         shell: bash
         run: |
@@ -125,18 +137,6 @@ jobs:
             echo 'At least one file has a file name that starts with "Unsigned", skip post to channel.'
             echo "unsigned_check=failure" >> ${GITHUB_ENV}
           fi
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Get all commit messages
-        id: get_commit_messages
-        run: |
-          git fetch --unshallow
-          COMMIT_MESSAGES=$(git log --oneline ${{ github.event.before }}..${{ github.event.after }})
-          echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
-          echo "$COMMIT_MESSAGES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
       - name: Post to channel
         if: ${{ env.post_to_channel_check == 'success' && env.unsigned_check == 'success' }}
