@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apk_version: [ Release, Beta, Canary, Debug ]
+        apk_version: [ Canary, Debug ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -141,8 +141,6 @@ jobs:
       - name: Post to channel
         if: ${{ env.post_to_channel_check == 'success' && env.unsigned_check == 'success' }}
         env:
-          RELEASE: "${{ github.workspace }}/artifact/Cemiuiler-Release/Cemiuiler-Release.apk"
-          BETA: "${{ github.workspace }}/artifact/Cemiuiler-Beta/Cemiuiler-Beta.apk"
           CANARY: "${{ github.workspace }}/artifact/Cemiuiler-Canary/Cemiuiler-Canary.apk"
           DEBUG: "${{ github.workspace }}/artifact/Cemiuiler-Debug/Cemiuiler-Debug.apk"
           COMMIT_MESSAGE: |+
